@@ -11,10 +11,13 @@ class AStar(object):
         self.q = PriorityQueue()
         self.node_count = 0
         self.q.put((world.distance_from_goal(start_node.world_state), self.node_count, start_node))
+        self.max_stored_nodes = 1
 
     def search(self):
         while self.next():
             self.expansion_count += 1
+            if self.q.qsize() > self.max_stored_nodes:
+                self.max_stored_nodes = self.q.qsize()
         return self.current
 
     def depth(self, node):

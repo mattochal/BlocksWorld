@@ -10,11 +10,14 @@ class BFS(object):
         self.current = start_node  # TreeNode
         self.q = queue.Queue()
         self.q.put(start_node)
+        self.max_stored_nodes = 1
 
     def search(self):
         while self.next():
             self.expansion_count += 1
             # print(self.expansion_count)
+            if self.q.qsize() > self.max_stored_nodes:
+                self.max_stored_nodes = self.q.qsize()
         return self.current
 
     def next(self):
@@ -47,10 +50,12 @@ class BFSBidirectional(object):
         self.head_q = queue.Queue()
         self.head_q.put(head_node)
         self.explored_by_head = {}
+        self.max_stored_nodes = 2
 
     def search(self):
         while self.next():
-            continue
+            if self.head_q.qsize()+self.tail_q.qsize() > self.max_stored_nodes:
+                self.max_stored_nodes = self.head_q.qsize()+self.tail_q.qsize()
 
         # Reverse the tail and append it to head_node
         self.head_node = self.head_node.parent  # get rid of the duplicate

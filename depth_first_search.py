@@ -9,12 +9,14 @@ class DFS(object):
         self.world = world  # BlocksWorld
         self.expansion_count = 0
         self.current = start_node  # TreeNode
+        self.max_stored_nodes = 0
 
     def search(self):
         while not self.world.is_solved(self.current.world_state):
             # self.print_status()
             self.next()
             self.expansion_count += 1
+            self.max_stored_nodes = self.expansion_count
         return self.current
 
     def next(self):

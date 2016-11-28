@@ -54,11 +54,12 @@ def search(obj):
     except MemoryError:
         my_node = None
     my_count = obj.expansion_count
-    return my_count, my_node
+    my_max_nodes = obj.max_stored_nodes
+    return my_count, my_max_nodes, my_node
 
 
-results = {"DFS": [], "BFS": [], "BFSBI": [], "AStar": [], "IDDFS": []}
-
+expansions = {"DFS": [], "BFS": [], "BFSBI": [], "AStar": [], "IDDFS": []}
+stored = {"DFS": [], "BFS": [], "BFSBI": [], "AStar": [], "IDDFS": []}
 
 for k in range(3, 6):
     # print("\nPuzzle size:", str(k), "x", str(k))
@@ -67,29 +68,36 @@ for k in range(3, 6):
 
     #img_gen = ImgGen(size*50, size*50)
     j = 0
-    for i in range(0):
+    for i in range(25):
         start_node = TreeNode(None, dict.copy(world.initial_world_state))
         dfs = DFS(world, start_node)
-        count, node = search(dfs)
+        count, max_nodes, node = search(dfs)
         if node is not None:
-            if len(results["DFS"]) <= k-3:
+            if len(expansions["DFS"]) <= k-3:
                 print("DFS", end="\t")
-                results["DFS"].append(count)
+                expansions["DFS"].append(count)
+                stored["DFS"].append(max_nodes)
             else:
-                results["DFS"][k-3] += count
+                expansions["DFS"][k - 3] += count
+                stored["DFS"][k - 3] += max_nodes
             j += 1
+        del dfs
 
     if j > 0:
-        results["DFS"][k-3] /= j
+        expansions["DFS"][k - 3] /= j
+        stored["DFS"][k - 3] /= j
+        print(expansions["DFS"][k - 3], "\t", stored["DFS"][k - 3])
 
     for i in range(0):
         print("BFS", end="\t")
         start_node = TreeNode(None, dict.copy(world.initial_world_state))
         bfs = BFS(world, start_node)
-        count, node = search(bfs)
-        results["BFS"].append(count)
-        print(count)
+        count, max_nodes, node = search(bfs)
+        expansions["BFS"].append(count)
+        stored["BFS"].append(max_nodes)
+        print(count, "\t", max_nodes)
         #img_gen.draw(world, node, "BFS", 0)
+        del bfs
 
 
     for i in range(0):
@@ -99,36 +107,50 @@ for k in range(3, 6):
         goal_world_state["agent"] = (0, 2)  # Add end position of the agent found by the AStar and IDDFS for 4x4 puzzle
         tail_node = TreeNode(None, goal_world_state)
         bfs_bi = BFSBidirectional(world, head_node, tail_node)
-        count, node = search(bfs_bi)
-        results["BFSBI"].append(count)
-        print(count)
+        count, max_nodes, node = search(bfs_bi)
+        expansions["BFSBI"].append(count)
+        stored["BFSBI"].append(max_nodes)
+        print(count, "\t", max_nodes)
         #img_gen.draw(world, head_node, "BFSHeadTail", 0)
+        del bfs_bi
 
     for i in range(1):
         print("AStar", end="\t")
         start_node = TreeNode(None, dict.copy(world.initial_world_state))
         astar = AStar(world, start_node)
-        count, node = search(astar)
-        results["AStar"].append(count)
-        print(count)
+        count, max_nodes, node = search(astar)
+        expansions["AStar"].append(count)
+        stored["AStar"].append(max_nodes)
+        print(count, "\t", max_nodes)
         #img_gen.draw(world, node, "AStar", 0)
+        del astar
 
     for i in range(0):
         print("IDDFS", end="\t")
         start_node = TreeNode(None, dict.copy(world.initial_world_state))
         iddfs = IDDFS(world, start_node)
-        count, node = search(iddfs)
-        results["IDDFS"].append(count)
-        print(count)
-        #img_gen.draw(world, node, "IDDFS", 0)
+        count, max_nodes, node = search(iddfs)
+        expansions["IDDFS"].append(count)
+        stored["IDDFS"].append(max_nodes)
+        print(count, "\t", max_nodes)
+        #img_gen.draw
+        del iddfs
 
 # TODO: obstacle and puzzle size investigation
 
 
 print("\nFinished\n")
 
-for key in results.keys():
+print("Node expansions")
+for key in expansions.keys():
     print(key, end="\t")
-    for result in results[key]:
+    for result in expansions[key]:
+        print(result, end="\t")
+    print("")
+
+print("\n Highest number of nodes on queue")
+for key in stored.keys():
+    print(key, end="\t")
+    for result in stored[key]:
         print(result, end="\t")
     print("")

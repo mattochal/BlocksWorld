@@ -9,12 +9,15 @@ class IDDFS(object):
         self.initial = start_node
         self.current = start_node  # TreeNode
         self.finished = False
+        self.max_stored_nodes = 0
 
     def search(self):
         depth = 0
         while not self.finished:
             self.dls(self.initial, depth)
             depth += 1
+            if depth > self.max_stored_nodes:
+                self.max_stored_nodes = depth
         return self.current
 
     def dls(self, node, limit):
